@@ -5,6 +5,7 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true, min: 0 },
   status: { type: String, enum: ['draft', 'active', 'discontinued'], default: 'draft' },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+  isDeleted: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 
