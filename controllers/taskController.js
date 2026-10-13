@@ -1,11 +1,36 @@
 const Task = require('../models/Task');
 
 exports.getAllTasks = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
   const filter = { isDeleted: false };
-  if (req.query.priority) filter.priority = req.query.priority;
-  if (req.query.completed) filter.completed = req.query.completed === 'true';
-  const tasks = await Task.find(filter);
-  res.json({ success: true, data: tasks });
+  if (req.query.completed !== undefined) {
+    filter.completed = req.query.completed === 'true';
+  }
+  if (req.query.priority) {
+    filter.priority = req.query.priority;
+  }
+  if (req.query.search) {
+    // Escape regex special characters so search text is matched literally
+    const escaped = req.query.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    filter.title = { $regex: escaped, $options: 'i' };
+  }
+
+  const allowedSortFields = ['createdAt', 'priority', 'title'];
+  const sortField = allowedSortFields.includes(req.query.sortBy) ? req.query.sortBy : 'createdAt';
+  const sortOrder = req.query.order === 'asc' ? 1 : -1;
+
+  const [tasks, total] = await Promise.all([
+    Task.find(filter).sort({ [sortField]: sortOrder }).skip(skip).limit(limit),
+    Task.countDocuments(filter),
+  ]);
+  res.json({
+    success: true,
+    data: tasks,
+    meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
 };
 
 exports.getTaskById = async (req, res) => {
