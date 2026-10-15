@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
+require('./models/Category');
 const productsRouter = require('./routes/products');
 const tasksRouter = require('./routes/tasks');
 const authRouter = require('./routes/auth');

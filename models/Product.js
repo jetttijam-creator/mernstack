@@ -6,6 +6,9 @@ const productSchema = new mongoose.Schema({
   status: { type: String, enum: ['draft', 'active', 'discontinued'], default: 'draft' },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   isDeleted: { type: Boolean, default: false },
+  description: { type: String, default: '' },
+  imageUrl: { type: String, default: '' },
+  inStock: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });
 
