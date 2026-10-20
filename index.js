@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./config/env')();
 const express = require('express');
 const connectDB = require('./config/db');
 require('./models/Category');
@@ -7,6 +8,7 @@ const tasksRouter = require('./routes/tasks');
 const authRouter = require('./routes/auth');
 
 const app = express();
+app.set('trust proxy', 1);
 connectDB();
 
 app.use(express.json());
@@ -19,6 +21,14 @@ app.use((req, res, next) => {
 
 app.get('/', (req, res) => {
   res.send('Hello from Express!');
+});
+
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    version: require('./package.json').version,
+    uptime: Math.round(process.uptime()),
+  });
 });
 
 app.use('/api/v1/products', productsRouter);
